@@ -18,6 +18,7 @@ package com.example.android.dessertpusher
 
 import android.content.ActivityNotFoundException
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -26,11 +27,18 @@ import androidx.core.app.ShareCompat
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.LifecycleObserver
 import com.example.android.dessertpusher.databinding.ActivityMainBinding
+import timber.log.Timber
+
+private const val KEY_REVENUE="key_revenue"
+private const val KEY_DESSERTSOLD="key_dessertSold"
+private const val KEY_DESSERTTIMER="key_dessertTimer"
 
 class MainActivity : AppCompatActivity(), LifecycleObserver {
 
     private var revenue = 0
     private var dessertsSold = 0
+    private val TAG ="LIFE_CYCLE"
+    private lateinit var DessertTimer : DessertTimer
 
     // Contains all the views
     private lateinit var binding: ActivityMainBinding
@@ -67,9 +75,18 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
         // Use Data Binding to get reference to the views
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        Log.i(TAG,"Activity has been created!")
+
+        DessertTimer= DessertTimer(this.lifecycle)
 
         binding.dessertButton.setOnClickListener {
             onDessertClicked()
+        }
+
+        if(savedInstanceState!=null)
+        {
+            revenue=savedInstanceState.getInt(KEY_REVENUE)
+            dessertsSold=savedInstanceState.getInt(KEY_DESSERTSOLD)
         }
 
         // Set the TextViews to the right values
@@ -94,6 +111,41 @@ class MainActivity : AppCompatActivity(), LifecycleObserver {
 
         // Show the next dessert
         showCurrentDessert()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Log.i(TAG,"Activity has been started!")
+        DessertTimer.startTimer()
+        //Timber.i("Activity has been started!")
+    }
+
+    override fun onResume() {
+        super.onResume()
+        Log.i(TAG,"Activity has been resumed!")
+    }
+
+    override fun onPause() {
+        super.onPause()
+        Log.i(TAG,"Activity has been paused!")
+    }
+
+    override fun onStop() {
+        super.onStop()
+        DessertTimer.stopTimer()
+        Log.i(TAG,"Activity has been stopped!")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Log.i(TAG,"Activity has been destroyed!")
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(KEY_REVENUE,revenue)
+        outState.putInt(KEY_DESSERTSOLD,dessertsSold)
+
     }
 
     /**
